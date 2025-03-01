@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Match Results</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .scrollable-box {
+            max-height: 100px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Resume Match Results</h2>
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th>Candidate Name</th>
+            <th>Match Percentage</th>
+            <th>Matched Skills</th>
+            <th>Unmatched Skills</th>
+            <th>Actions</th>
+        </tr>
+        {% for rank, candidate_name, match_percentage, resume in ranked_results %}
+        <tr>
+            <td>{{ rank }}</td>
+            <td>{{ candidate_name }}</td>
+            <td>{{ match_percentage|floatformat:2 }}%</td>
+            <td>
+                <div class="scrollable-box">
+                    <ul>
+                        {% for skill in resume.extracted_skills %}
+                            {% if skill in required_skills %}
+                                <li>{{ skill }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+            <td>
+                <div class="scrollable-box">
+                    <ul>
+                        {% for skill in required_skills %}
+                            {% if skill not in resume.extracted_skills %}
+                                <li>{{ skill }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+            <td>
+                <button onclick="showModal('{{ forloop.counter0 }}')">Preview</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Modal for Resume Preview -->
+    {% for rank, candidate_name, match_percentage, resume in ranked_results %}
+    <div id="modal-{{ forloop.counter0 }}" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('{{ forloop.counter0 }}')">&times;</span>
+            <h3>Resume Preview for {{ candidate_name }}</h3>
+            <pre>{{ resume.extracted_text }}</pre>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        function showModal(index) {
+            document.getElementById(`modal-${index}`).style.display = "block";
+        }
+
+        function closeModal(index) {
+            document.getElementById(`modal-${index}`).style.display = "none";
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Match Results</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .scrollable-box {
+            max-height: 100px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Resume Match Results</h2>
+    <table>
+        {% comment %} <tr>
+            <th>Rank</th>
+            <th>Candidate Name</th>
+            <th>Match Percentage</th>
+            <th>Matched Skills</th>
+            <th>Unmatched Skills</th>
+            <th>Actions</th>
+        </tr>
+        {% for rank, candidate_name, match_percentage, resume in ranked_results %}
+        <tr>
+            <td>{{ rank }}</td>
+            <td>{{ candidate_name }}</td>
+            <td>{{ match_percentage|floatformat:2 }}%</td>
+            <td> {% endcomment %}
+
+            {% comment %} <tr>
+                <th>Resume Name</th>
+                <th>Match Score (%)</th>
+                <th>Resume Domain</th>
+                <th>Matched Skills</th>
+                <th>Unmatched Skills</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for resume in ranked_resumes %}
+            <tr>
+                <td>{{ resume.resume_name }}</td>
+                <td>{{ resume.match_score }}</td>
+                <td>{{ resume.resume_domain }}</td>
+                <td>{{ resume.matched_skills|join:", " }}</td>
+                <td>{{ resume.unmatched_skills|join:", " }}</td>
+            </tr>
+            {% endfor %}
+
+
+                <div class="scrollable-box">
+                    <ul>
+                        {% for skill in resume.extracted_skills %}
+                            {% if skill in required_skills %}
+                                <li>{{ skill }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+            <td>
+                <div class="scrollable-box">
+                    <ul>
+                        {% for skill in required_skills %}
+                            {% if skill not in resume.extracted_skills %}
+                                <li>{{ skill }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+            <td>
+                <button onclick="showModal('{{ forloop.counter0 }}')">Preview</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Modal for Resume Preview -->
+    {% for rank, candidate_name, match_percentage, resume in ranked_results %}
+    <div id="modal-{{ forloop.counter0 }}" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('{{ forloop.counter0 }}')">&times;</span>
+            <h3>Resume Preview for {{ candidate_name }}</h3>
+            <pre>{{ resume.extracted_text }}</pre>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        function showModal(index) {
+            document.getElementById(`modal-${index}`).style.display = "block";
+        }
+
+        function closeModal(index) {
+            document.getElementById(`modal-${index}`).style.display = "none";
+        }
+    </script>
+</body>
+</html> {% endcomment %} 
